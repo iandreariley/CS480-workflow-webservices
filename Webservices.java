@@ -25,9 +25,12 @@ public class Webservices {
 	//false otherwise. Should return a 4xx error of some sort if there is no
 	//state field.
     @GET
-    @Path("/check-address")
-    public Response checkAddress(){
-        return Response.ok().build();
+    @Path("{check-address}")
+    public Response checkAddress(@PathParam("check-address") String check_address){
+    	if(check_address.toLowerCase().contains("ca")||check_address.toLowerCase().contains("california"))
+    		return Response.ok().build();
+    	else
+    		return Response.status(403).build();
     }
  
     //Expects a JSON object document representing a user. We go to some
