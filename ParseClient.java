@@ -46,6 +46,24 @@ public class ParseClient {
 		return null;
 	}
 	
+	public static Response sendPut(String resourceExtension, String requestBody) {
+		
+		try {
+			HttpsURLConnection parseDB = openConnection(resourceExtension, "PUT");		
+			OutputStream output = parseDB.getOutputStream();
+			output.write(requestBody.getBytes(StandardCharsets.UTF_8.name()));
+			int responseCode = parseDB.getResponseCode();
+			System.out.println(responseCode);
+			System.out.println(resourceExtension);
+			String responseBody = getResponseBody(parseDB);
+			return Response.status(responseCode).entity(responseBody).build();
+		} catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+		return null;
+		
+	}
+	
 	//Retrieves the body of the HTTP Response and returns it as a string.
 	private static String getResponseBody(HttpsURLConnection dbConnect) throws IOException {
 		BufferedReader dbResponse = new BufferedReader(
@@ -64,13 +82,13 @@ public class ParseClient {
 		HttpsURLConnection parseDB = (HttpsURLConnection) resourceURL.openConnection();
 		
 		//Add method and headers to request
-		parseDB.setRequestMethod(method);
-		parseDB.setRequestProperty("X-Parse-Application-Id", APP_ID);
-		parseDB.setRequestProperty("X-Parse-REST-API-Key", REST_KEY);
 		if(method != "GET") {
 			parseDB.setDoOutput(true);
 			parseDB.setRequestProperty("Content-Type", "application/json");
 		}
+		parseDB.setRequestMethod(method);
+		parseDB.setRequestProperty("X-Parse-Application-Id", APP_ID);
+		parseDB.setRequestProperty("X-Parse-REST-API-Key", REST_KEY);
 			
 		
 		return parseDB;

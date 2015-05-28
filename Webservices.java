@@ -51,10 +51,18 @@ public class Webservices {
     
     @POST
     @Path("/{class}")
-    public Response create(String body, @PathParam("class") String objClass, @PathParam("id") String objId) {
+    public Response create(String body, @PathParam("class") String objClass) {
     	String urlExtension = "/classes/" + objClass;
     	System.out.println(body);
     	return ParseClient.sendPost(urlExtension, body);
+    }
+    
+    @PUT
+    @Path("/{class}/{id}")
+    public Response update(String body, @PathParam("class") String objClass, @PathParam("id") String objId) {
+    	String urlExtension = "/classes/" + objClass + "/" + objId;
+    	System.out.println("In update: " + urlExtension);
+    	return ParseClient.sendPut(urlExtension, body);
     }
     
     //Writes an email given all pertinent information. Look up the JavaMail documentation
