@@ -53,16 +53,21 @@ public class Webservices {
     @Path("/{class}")
     public Response create(String body, @PathParam("class") String objClass) {
     	String urlExtension = "/classes/" + objClass;
-    	System.out.println(body);
     	return ParseClient.sendPost(urlExtension, body);
     }
     
     @PUT
-    @Path("/{class}/{id}")
+    @Path("/{class}/{id: [a-zA-Z0-9]+}")
     public Response update(String body, @PathParam("class") String objClass, @PathParam("id") String objId) {
     	String urlExtension = "/classes/" + objClass + "/" + objId;
-    	System.out.println("In update: " + urlExtension);
     	return ParseClient.sendPut(urlExtension, body);
+    }
+    
+    @DELETE
+    @Path("/{class}/{id: [a-zA-Z0-9]+}")
+    public Response delete(@PathParam("class") String objClass, @PathParam("id") String objId) throws MalformedURLException, IOException {
+    	String urlExtension = "/classes/" + objClass + "/" + objId;
+     	return ParseClient.sendDelete(urlExtension);
     }
     
     //Writes an email given all pertinent information. Look up the JavaMail documentation

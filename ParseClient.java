@@ -64,6 +64,15 @@ public class ParseClient {
 		
 	}
 	
+	public static Response sendDelete(String resourceExtension) throws IOException, MalformedURLException, ProtocolException {
+		HttpsURLConnection parseDb = openConnection(resourceExtension, "DELETE");
+		
+		int responseCode = parseDb.getResponseCode();
+		
+		String responseBody = getResponseBody(parseDb);
+		return Response.status(responseCode).entity(responseBody).build();
+	}
+	
 	//Retrieves the body of the HTTP Response and returns it as a string.
 	private static String getResponseBody(HttpsURLConnection dbConnect) throws IOException {
 		BufferedReader dbResponse = new BufferedReader(
@@ -82,7 +91,7 @@ public class ParseClient {
 		HttpsURLConnection parseDB = (HttpsURLConnection) resourceURL.openConnection();
 		
 		//Add method and headers to request
-		if(method != "GET") {
+		if(method == "POST" || method == "PUT") {
 			parseDB.setDoOutput(true);
 			parseDB.setRequestProperty("Content-Type", "application/json");
 		}
