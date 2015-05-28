@@ -4,6 +4,9 @@ import javax.ejb.Stateless;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -12,6 +15,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.io.IOException;
+import java.net.MalformedURLException;
  
 @Path("/")
 @Produces ({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -38,9 +43,18 @@ public class Webservices {
     //If they're approved, we write their information to the Parse database. If not,
     //we write them a sad email.
     @GET
-    @Path("/approve")
-    public Response checkApproval(){
-    	return Response.ok().build();
+    @Path("/{class}/{id: [a-zA-Z0-9]*}")
+    public Response retrieve(@PathParam("class") String objClass, @PathParam("id") String objId) throws MalformedURLException, IOException{
+    	String urlExtension = "/classes/" + objClass + "/" + objId;
+     	return ParseClient.sendGet(urlExtension);
+    }
+    
+    @POST
+    @Path("/{class}")
+    public Response create(String body, @PathParam("class") String objClass, @PathParam("id") String objId) {
+    	String urlExtension = "/classes/" + objClass;
+    	System.out.println(body);
+    	return ParseClient.sendPost(urlExtension, body);
     }
     
     //Writes an email given all pertinent information. Look up the JavaMail documentation
