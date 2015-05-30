@@ -17,36 +17,34 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.net.MalformedURLException;
- 
+
+
+
+import java.util.Map;
 @Path("/")
 @Produces ({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 @Consumes ({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 @Stateless
 public class Webservices {
- 
-	//Expects a JSON string as the body of the http request. From that
-	//document it looks at the value of a field called 'state' and returns
-	//true if that state is either 'ca' or 'california', ignoring case. Returns
-	//false otherwise. Should return a 4xx error of some sort if there is no
-	//state field.
+
     @GET
-    @Path("{check-address}")
-    public Response checkAddress(@PathParam("check-address") String check_address){
-    	if(check_address.toLowerCase().contains("ca")||check_address.toLowerCase().contains("california"))
-    		return Response.ok().build();
-    	else
-    		return Response.status(403).build();
-    }
- 
-    //Expects a JSON object document representing a user. We go to some
-    //as-yet-unspecified web service to check whether this person has been approved.
-    //If they're approved, we write their information to the Parse database. If not,
-    //we write them a sad email.
-    @GET
-    @Path("/{class}/{id: [a-zA-Z0-9]*}")
+    @Path("/{class}")
     public Response retrieve(@PathParam("class") String objClass, @PathParam("id") String objId) throws MalformedURLException, IOException{
+    	String urlExtension = "/classes/" + objClass;
+    	System.out.println("HERE I AM!");
+     	return ParseClient.sendGet(urlExtension);
+    }
+    
+    @GET
+    @Path("/{class: [a-zA-Z0-9]+}/{id: [a-zA-Z0-9]+}")
+    public Response retrieveOne(@PathParam("class") String objClass, @PathParam("id") String objId) throws MalformedURLException, IOException{
     	String urlExtension = "/classes/" + objClass + "/" + objId;
      	return ParseClient.sendGet(urlExtension);
+    }
+    
+    @GET
+    public Response test() {
+    	return Response.ok().build();
     }
     
     @POST
@@ -68,6 +66,18 @@ public class Webservices {
     public Response delete(@PathParam("class") String objClass, @PathParam("id") String objId) throws MalformedURLException, IOException {
     	String urlExtension = "/classes/" + objClass + "/" + objId;
      	return ParseClient.sendDelete(urlExtension);
+    }
+    
+    @GET
+    @Path("/check/customer/state/{id: [a-zA-Z0-9]+}")
+    public Response checkState(@PathParam("id") String objId) throws Exception {
+    	String resourceExtension = "/classes/Customer/" + objId;
+    	String json = "{\"inState\":";
+    	if(ParseClient.checkState(resourceExtension))
+    		json += "\"true\"}";
+    	else
+    		json += "\"false\"}";
+    	return Response.ok().entity(json).build();
     }
     
     //Writes an email given all pertinent information. Look up the JavaMail documentation

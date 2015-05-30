@@ -4,21 +4,51 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.util.Map;
 import java.lang.Exception;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.ws.rs.core.Response;
 
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
+
+import org.eclipse.persistence.jaxb.UnmarshallerProperties;
+
 public class ParseClient {
 	private static final String APP_ID = "zo2uyGbQgBecbaQOR8MjhGDf3DjJHFds380Lleah";
 	private static final String REST_KEY = "7VBynMHcow9zJWWzT0pfu0cjF2h1cDfWYpl71JgH";
 	private static final String PARSE_API_ROOT_URL = "https://api.parse.com/1";
+	
+	public static boolean checkState(String resourceExtension) throws MalformedURLException, ProtocolException, IOException, JAXBException  {
+		HttpsURLConnection parseDB = openConnection(resourceExtension, "GET");
+		
+		JAXBContext context = JAXBContext.newInstance(Customer.class);
+		Unmarshaller jsonUnmarshaller = context.createUnmarshaller();
+		jsonUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
+		String responseBody = getResponseBody(parseDB);
+		//Properly wrap json so that unmarshaller can unmarshal to Customer object.
+		responseBody = "{\"Customer\":" + responseBody + "}";
+		StreamSource json = new StreamSource(new StringReader(responseBody));
+		
+		Customer cust = jsonUnmarshaller.unmarshal(json, Customer.class).getValue();
+		if(cust == null)
+			return false;
+		cust.print();
+		String state = cust.getState().toLowerCase();
+		
+		return state.equals("ca") || state.equals("california");
+	}
 
-	public static Response sendGet(String resourceExtension)  throws MalformedURLException, ProtocolException, IOException {
+	public static Response sendGet(String resourceExtension)  throws MalformedURLException, ProtocolException, IOException{
 		
 		HttpsURLConnection parseDB = openConnection(resourceExtension, "GET");
 				
@@ -53,8 +83,6 @@ public class ParseClient {
 			OutputStream output = parseDB.getOutputStream();
 			output.write(requestBody.getBytes(StandardCharsets.UTF_8.name()));
 			int responseCode = parseDB.getResponseCode();
-			System.out.println(responseCode);
-			System.out.println(resourceExtension);
 			String responseBody = getResponseBody(parseDB);
 			return Response.status(responseCode).entity(responseBody).build();
 		} catch(Exception e) {
