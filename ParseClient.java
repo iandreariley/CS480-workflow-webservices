@@ -9,7 +9,6 @@ import java.nio.charset.StandardCharsets;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
-import java.util.Map;
 import java.lang.Exception;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -29,23 +28,24 @@ public class ParseClient {
 	private static final String PARSE_API_ROOT_URL = "https://api.parse.com/1";
 	
 	public static boolean checkState(String resourceExtension) throws MalformedURLException, ProtocolException, IOException, JAXBException  {
-		HttpsURLConnection parseDB = openConnection(resourceExtension, "GET");
+		Customer customer = getCustomer(resourceExtension);
 		
-		JAXBContext context = JAXBContext.newInstance(Customer.class);
-		Unmarshaller jsonUnmarshaller = context.createUnmarshaller();
-		jsonUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
-		String responseBody = getResponseBody(parseDB);
-		//Properly wrap json so that unmarshaller can unmarshal to Customer object.
-		responseBody = "{\"Customer\":" + responseBody + "}";
-		StreamSource json = new StreamSource(new StringReader(responseBody));
-		
-		Customer cust = jsonUnmarshaller.unmarshal(json, Customer.class).getValue();
-		if(cust == null)
+		if(customer == null)
 			return false;
-		cust.print();
-		String state = cust.getState().toLowerCase();
+		customer.print();
+		String state = customer.getState().toLowerCase();
 		
 		return state.equals("ca") || state.equals("california");
+	}
+	
+	public static String checkApproval(String resourceExtension) throws MalformedURLException, ProtocolException, IOException, JAXBException {
+		Customer customer = getCustomer(resourceExtension);
+		
+		if(customer == null)
+			return "";
+		
+		String approval = customer.getApproval();
+		return approval;
 	}
 
 	public static Response sendGet(String resourceExtension)  throws MalformedURLException, ProtocolException, IOException{
@@ -111,6 +111,20 @@ public class ParseClient {
 			responseContent.append(line + "\n");
 		dbResponse.close();
 		return responseContent.toString();
+	}
+	
+	private static Customer getCustomer(String resourceExtension) throws MalformedURLException, ProtocolException, IOException, JAXBException {
+		HttpsURLConnection parseDB = openConnection(resourceExtension, "GET");
+		
+		JAXBContext context = JAXBContext.newInstance(Customer.class);
+		Unmarshaller jsonUnmarshaller = context.createUnmarshaller();
+		jsonUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
+		String responseBody = getResponseBody(parseDB);
+		//Properly wrap json so that unmarshaller can unmarshal to Customer object.
+		responseBody = "{\"Customer\":" + responseBody + "}";
+		StreamSource json = new StreamSource(new StringReader(responseBody));
+		
+		return jsonUnmarshaller.unmarshal(json, Customer.class).getValue();
 	}
 	
 	public static HttpsURLConnection openConnection(String resourceExtension, String method) throws MalformedURLException, ProtocolException, IOException {
