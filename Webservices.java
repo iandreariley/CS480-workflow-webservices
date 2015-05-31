@@ -75,6 +75,15 @@ public class Webservices {
     	return Response.ok().entity(json).build();
     }
     
+    @GET
+    @Path("/check/customer/approval/{id: [a-zA-Z0-9]+}")
+    public Response checkApproval(@PathParam("id") String objId) throws Exception {
+    	String resourceExtension = "/classes/Customer/" + objId;
+    	String approval = ParseClient.checkApproval(resourceExtension);
+    	String json = "{\"approval\":\"" + approval + "\"}";
+    	return Response.ok().entity(json).build();
+    }
+    
     //Writes an email given all pertinent information. Look up the JavaMail documentation
     public void sendEmail(){
     	//your code here
