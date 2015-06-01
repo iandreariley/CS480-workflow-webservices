@@ -87,12 +87,22 @@ public class Webservices {
     @POST
     @Path("/send/customer/email/{id: [a-zA-Z0-9]+}")
     public Response sendEmail(String body, @PathParam("id") String objId) throws Exception {
+    	
+
+        
+        String hostname = "smtp.gmail.com";
+        int port = 587;
+        String username = "cs480webservices@gmail.com";
+        String password = "easypassword1";
+        String from = "cs480webservices@gmail.com";
+        Mailer mailer = new Mailer(port,hostname,from,username,password);
+        String to = "idriley@cpp.edu";
+        
     	String resourceExtension = "/classes/Customer/" + objId;
     	Customer customer = ParseClient.getCustomer(resourceExtension);
     	String emailAddress = customer.getEmailAddress();
     	String emailBody = getEmailBodyFromJson(body);
-    	SimpleMail mailer = new SimpleMail();
-    	mailer.send(emailAddress, emailBody);
+    	mailer.sendEmail(emailAddress, "Booyah!", emailBody);
     	return Response.ok().build();
     }
     
