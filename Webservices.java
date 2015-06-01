@@ -84,6 +84,26 @@ public class Webservices {
     	return Response.ok().entity(json).build();
     }
     
+    @POST
+    @Path("/send/customer/email/{id: [a-zA-Z0-9]+}")
+    public Response sendEmail(String body, @PathParam("id") String objId) throws Exception {
+    	String resourceExtension = "/classes/Customer/" + objId;
+    	Customer customer = ParseClient.getCustomer(resourceExtension);
+    	String emailAddress = customer.getEmailAddress();
+    	String emailBody = getEmailBodyFromJson(body);
+    	SimpleMail mailer = new SimpleMail();
+    	mailer.send(emailAddress, emailBody);
+    	return Response.ok().build();
+    }
+    
+    private String getEmailBodyFromJson(String json) {
+    	System.out.println("EMAIL JSON:\n" + json);
+    	int begin = json.indexOf(':');
+    	begin = json.indexOf('"', begin) + 1;
+    	int end = json.indexOf('}') - 1;
+    	return json.substring(begin, end);
+    }
+    
     //Writes an email given all pertinent information. Look up the JavaMail documentation
     public void sendEmail(){
     	//your code here

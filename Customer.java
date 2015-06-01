@@ -11,6 +11,7 @@ public class Customer {
 	private String state;
 	private String zipCode;
 	private String approval;
+	private String emailAddress;
 	
 	public void setId(String id) {this.id = id;}
 	
@@ -24,6 +25,8 @@ public class Customer {
 	
 	public void setApproval(String approval) {this.approval = approval;}
 	
+	public void setEmailAddress(String emailAddress) {this.emailAddress = emailAddress;}
+	
 	public String getId() {return this.id;}
 	
 	public String getName() {return this.name;}
@@ -35,6 +38,8 @@ public class Customer {
 	public String getZipCode() {return this.zipCode;}
 	
 	public String getApproval() {return this.approval;}
+	
+	public String getEmailAddress() {return this.emailAddress;}
 	
 	public void print() {
 		System.out.println("CUSTOMER");

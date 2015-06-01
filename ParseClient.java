@@ -113,7 +113,7 @@ public class ParseClient {
 		return responseContent.toString();
 	}
 	
-	private static Customer getCustomer(String resourceExtension) throws MalformedURLException, ProtocolException, IOException, JAXBException {
+	public static Customer getCustomer(String resourceExtension) throws MalformedURLException, ProtocolException, IOException, JAXBException {
 		HttpsURLConnection parseDB = openConnection(resourceExtension, "GET");
 		
 		JAXBContext context = JAXBContext.newInstance(Customer.class);
