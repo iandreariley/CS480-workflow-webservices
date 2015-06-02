@@ -1,6 +1,5 @@
 package riley.web.rest;
 
-import java.io.PrintWriter;
 import java.util.Date;
 import java.util.Properties;
 
@@ -12,11 +11,6 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-
-//This class is required by profMailServlet.
-//The only additional part of the Mailer that is hardcoded right now is 
-//the protocol used, an additional Mailer constructor opperator to add would be
-//a choice for which protocol is used.
 /**
  * 
  * @author Largely this was based on a tutorial from Oracle.
@@ -55,15 +49,11 @@ public class Mailer {
 	 * @param subject the subject of your message
 	 * @param body the body of your message
 	 */
-	public void sendEmail(String to, String subject, String body)
-	{
-		//PrintWriter writer = new PrintWriter(System.out);
+	public void sendEmail(String to, String subject, String body) {
 		Properties props = new Properties();
 		
 		props.put("mail.smtp.host", host);
 		props.put("mail.smtp.port", port);
-		//props.list(writer);
-		//props.put("mail.smtp.ssl.enable", true);
 
 		switch(protocol)
 		{
@@ -89,7 +79,6 @@ public class Mailer {
 			}
 			Session session = Session.getInstance(props,authen);
 			session.setDebug(true);
-			//System.out.println(session);
 			MimeMessage message = new MimeMessage(session);
 			try
 			{

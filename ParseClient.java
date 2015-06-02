@@ -102,7 +102,7 @@ public class ParseClient {
 	}
 	
 	//Retrieves the body of the HTTP Response and returns it as a string.
-	private static String getResponseBody(HttpsURLConnection dbConnect) throws IOException {
+	public static String getResponseBody(HttpsURLConnection dbConnect) throws IOException {
 		BufferedReader dbResponse = new BufferedReader(
 				new InputStreamReader(dbConnect.getInputStream()));
 		StringBuilder responseContent = new StringBuilder();
@@ -115,16 +115,18 @@ public class ParseClient {
 	
 	public static Customer getCustomer(String resourceExtension) throws MalformedURLException, ProtocolException, IOException, JAXBException {
 		HttpsURLConnection parseDB = openConnection(resourceExtension, "GET");
-		
-		JAXBContext context = JAXBContext.newInstance(Customer.class);
+		String responseBody = getResponseBody(parseDB);
+		return (Customer) jsonToObject(responseBody, "Customer", Customer.class);
+	}
+	
+	public static Object jsonToObject(String json, String classString, Class<?> objClass) throws JAXBException {
+		JAXBContext context = JAXBContext.newInstance(objClass);
 		Unmarshaller jsonUnmarshaller = context.createUnmarshaller();
 		jsonUnmarshaller.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
-		String responseBody = getResponseBody(parseDB);
-		//Properly wrap json so that unmarshaller can unmarshal to Customer object.
-		responseBody = "{\"Customer\":" + responseBody + "}";
-		StreamSource json = new StreamSource(new StringReader(responseBody));
-		
-		return jsonUnmarshaller.unmarshal(json, Customer.class).getValue();
+		//Wrap json in proper jaxb format.
+		String jaxbString = "{\"" + classString + "\":" + json + "}";
+		StreamSource jsonStream = new StreamSource(new StringReader(jaxbString));
+		return jsonUnmarshaller.unmarshal(jsonStream, objClass).getValue();
 	}
 	
 	public static HttpsURLConnection openConnection(String resourceExtension, String method) throws MalformedURLException, ProtocolException, IOException {
