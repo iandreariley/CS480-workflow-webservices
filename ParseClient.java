@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -13,13 +14,14 @@ import java.lang.Exception;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.ws.rs.core.Response;
-
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.PropertyException;
 import javax.xml.transform.stream.StreamSource;
 
+import org.eclipse.persistence.jaxb.MarshallerProperties;
 import org.eclipse.persistence.jaxb.UnmarshallerProperties;
 
 public class ParseClient {
@@ -27,53 +29,36 @@ public class ParseClient {
 	private static final String REST_KEY = "7VBynMHcow9zJWWzT0pfu0cjF2h1cDfWYpl71JgH";
 	private static final String PARSE_API_ROOT_URL = "https://api.parse.com/1";
 	
-	public static boolean checkState(String resourceExtension) throws MalformedURLException, ProtocolException, IOException, JAXBException  {
-		Customer customer = getCustomer(resourceExtension);
-		
-		if(customer == null)
-			return false;
-		customer.print();
-		String state = customer.getState().toLowerCase();
-		
-		return state.equals("ca") || state.equals("california");
-	}
-	
-	public static String checkApproval(String resourceExtension) throws MalformedURLException, ProtocolException, IOException, JAXBException {
-		Customer customer = getCustomer(resourceExtension);
-		
-		if(customer == null)
-			return "";
-		
-		String approval = customer.getApproval();
-		return approval;
-	}
-
+	/*
+	 * Thi
+	 * @param resourceExtension the extension from PARSE_API_ROOT_URL that accesses
+	 * the desired element
+	 * @return http response with json in the body representing object, or json
+	 * with an error message if object wasn't found
+	 */
 	public static Response sendGet(String resourceExtension)  throws MalformedURLException, ProtocolException, IOException{
 		
 		HttpsURLConnection parseDB = openConnection(resourceExtension, "GET");
-				
 		//Send request and get response code
 		int responseCode = parseDB.getResponseCode();
-		
 		//TODO Add conditional blocks for possible response codes
-		
 		String responseBody = getResponseBody(parseDB);
 		return Response.status(responseCode).entity(responseBody).build();
 	}
 	
-	public static Response sendPost(String resourceExtension, String requestBody){
-		
-		try {
-			HttpsURLConnection parseDB = openConnection(resourceExtension, "POST");		
-			OutputStream output = parseDB.getOutputStream();
-			output.write(requestBody.getBytes(StandardCharsets.UTF_8.name()));
-			int responseCode = parseDB.getResponseCode();
-			String responseBody = getResponseBody(parseDB);
-			return Response.status(responseCode).entity(responseBody).build();
-		} catch(Exception e) {
-			System.out.println(e.getMessage());
-		}
-		return null;
+	public static Response postCustomer(String form) throws JAXBException, PropertyException, IOException, MalformedURLException, PropertyException {
+		String customerString = FormToCustomer(form);
+		Response response = sendPost("/classes/Customer", customerString);
+		return response;
+	}
+	
+	public static Response sendPost(String resourceExtension, String requestBody) throws MalformedURLException, ProtocolException, IOException {
+		HttpsURLConnection parseDB = openConnection(resourceExtension, "POST");		
+		OutputStream output = parseDB.getOutputStream();
+		output.write(requestBody.getBytes(StandardCharsets.UTF_8.name()));
+		int responseCode = parseDB.getResponseCode();
+		String responseBody = getResponseBody(parseDB);
+		return Response.status(responseCode).entity(responseBody).build();
 	}
 	
 	public static Response sendPut(String resourceExtension, String requestBody) {
@@ -145,5 +130,19 @@ public class ParseClient {
 			
 		
 		return parseDB;
+	}
+	
+	private static String FormToCustomer(String form) throws JAXBException, PropertyException {
+		Customer customer = (Customer) jsonToObject(form, "Customer", Customer.class);
+		JAXBContext jc = JAXBContext.newInstance(Customer.class);
+		Marshaller marshaller = jc.createMarshaller();
+		marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
+		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		StringWriter sw = new StringWriter();
+		marshaller.marshal(customer, sw);
+		String customerJson = sw.toString();
+		int startBracket = customerJson.indexOf('{', 1);
+		int endBracket = customerJson.lastIndexOf('}', customerJson.length() - 2) + 1;
+		return customerJson.substring(startBracket, endBracket);
 	}
 }
