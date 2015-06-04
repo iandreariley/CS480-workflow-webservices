@@ -35,7 +35,7 @@ public class Mailer {
 	 * @param inPassword your secret password for the smtp server used.
 	 */
 	public Mailer(int inPort, String inHost, String inFrom, String inUser,
-			String inPassword)
+				String inPassword)
 	{
 		port = inPort;
 		host = inHost;
