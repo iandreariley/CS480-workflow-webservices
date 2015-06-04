@@ -14,6 +14,8 @@ import javax.mail.internet.MimeMessage;
 /**
  * This class sends emails.
  * @author Largely this was based on a tutorial from Oracle.
+ * @author Ian Riley
+ * @author Christian Markmiller
  *
  */
 public class Mailer {
@@ -34,14 +36,14 @@ public class Mailer {
 	 * @param inUser username@example.com
 	 * @param inPassword your secret password for the smtp server used.
 	 */
-	public Mailer(int inPort, String inHost, String inFrom, String inUser,
-				String inPassword)
+	public Mailer(int port, String host, String from, String user,
+				String password)
 	{
-		port = inPort;
-		host = inHost;
-		from = inFrom;
-		username = inUser;
-		password = inPassword;
+		this.port = port;
+		this.host = host;
+		this.from = from;
+		this.username = user;
+		this.password = password;
 	}
 	
 	/**
