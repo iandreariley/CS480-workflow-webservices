@@ -27,7 +27,9 @@ public class Customer {
 	
 	public void setZipCode(String zipCode) {this.zipCode = zipCode;}
 	
-	public void setEmailAddress(String emailAddress) {this.emailAddress = emailAddress;}
+	public void setEmailAddress(String emailAddress) {
+		this.emailAddress = emailAddress;
+	}
 	
 	public String getId() {return this.id;}
 	

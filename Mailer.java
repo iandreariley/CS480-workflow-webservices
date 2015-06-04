@@ -12,7 +12,7 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 /**
- * 
+ * This class sends emails.
  * @author Largely this was based on a tutorial from Oracle.
  *
  */
@@ -34,7 +34,8 @@ public class Mailer {
 	 * @param inUser username@example.com
 	 * @param inPassword your secret password for the smtp server used.
 	 */
-	public Mailer(int inPort, String inHost, String inFrom, String inUser, String inPassword)
+	public Mailer(int inPort, String inHost, String inFrom, String inUser,
+			String inPassword)
 	{
 		port = inPort;
 		host = inHost;
@@ -70,7 +71,8 @@ public class Mailer {
 				props.put("mail.smtp.auth", true);
 				authen = new Authenticator()
 				{
-					private PasswordAuthentication pa = new PasswordAuthentication(username,password);
+					private PasswordAuthentication pa =
+							new PasswordAuthentication(username,password);
 					@Override
 					public PasswordAuthentication getPasswordAuthentication(){
 						return pa;
